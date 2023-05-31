@@ -1,1 +1,144 @@
-Hello World
+<html>
+<head>
+<title>Ladder Operators</title>
+<style>
+  {
+      box-sizing: border-box;
+  }
+  /* Set additional styling options for the columns */
+  .column {
+  float: left;
+  }
+
+  /* Set width length for the left, right and middle columns */
+  .left {
+  width: 50%;
+  }
+
+  .right {
+  width: 50%;
+  }
+
+  .row:after {
+  content: "";
+  display: table;
+  clear: both;
+  }
+  </style>
+</head>
+<body>
+
+<h1>Ladder Operators For Quantum Angular Momentum</h1>
+
+<div class="row">
+  <div class="column left">
+    <p> This page will simulate the ladder operators for quantum angular momentum.
+      You need to enter a value for <em>L</em><sub>max</sub> (the maximum angular momentum)
+      and a random quantum angular momentum sate will be generated with an <em>L</em>
+      value no greater than <em>L</em><sub>max</sub>.
+      Your goal is to use the raising (<em>L</em><sub>+</sub>),
+      lowering (<em>L</em><sub>-</sub>), and <em>L</em><sub>z</sub> operators to determine
+      what the value of <em>L</em> is for this quantum state.
+      Note, to make things easier, we are using a unit system where
+      the reduced Plank constant has a value of one.
+      So eigenvalues will be given as pure numbers rather than a number multiplied
+      by the reduced Plank constant. Additionally, all inputs should be in decimal form. </p>
+
+      <p>Enter the value of <em>L</em><sub>max</sub>:</p>
+
+      <input type="text" id="L_max">
+
+      <button onclick = "storeUserInput()"> Start new simulation </button>
+
+      <p id = "res"></p>
+    </div>
+  <div class="column right">
+    <p><img src="qm_ladder.png" alt="ladder image" width="50%"></p>
+  </div>
+</div>
+
+<script>
+  var text = "";
+
+  var buttons = "<p><button onclick = \"applyOperator(-1)\"> <em>L</em><sub>-</sub> </button>" +
+                  "<button onclick = \"applyOperator(1)\"> <em>L</em><sub>+</sub> </button>" +
+                  "<button onclick = \"applyOperator(0)\"> <em>L</em><sub>z</sub> </button>" +
+                  " L guess = <input type=\"text\" id=\"L\"> <button onclick = \"guess()\"> Enter <em>L</em> guess </button></p>";
+
+  function getRandomInt(max) {
+    //alert("max is " + max);
+    return Math.floor(Math.random() * max);
+  }
+
+  function sateToText(state) {
+    return "<b>|</b> " + state.L + ", " + state.m + " <b>></b>";
+  }
+
+  function applyOperator(operator) {
+    var state = {L: window.current_state.L, m: window.current_state.m};
+    state.m = state.m + operator;
+    window.out_val = state;
+    if (operator == 1) {
+      text += "<p>You applied the <em>L</em><sub>+</sub> operater.</p>";
+    } else if (operator == -1) {
+      text += "<p>You applied the <em>L</em><sub>-</sub> operater.</p>";
+    }
+    if (state.m > state.L || state.m < -state.L) {
+      text += "<p> You went off the ladder. The current state is invalid. Reseting to initial state.</p>";
+      state.L = window.initial_state.L;
+      state.m = window.initial_state.m;
+    }
+    if (operator == 0) {
+      text += "<p>You applied the <em>L</em><sub>z</sub> operater, returning an eigenvalue of " + state.m + ".</p>";
+    }
+    window.current_state.L = state.L;
+    window.current_state.m = state.m;
+    document.getElementById("res").innerHTML = text + buttons;
+  }
+
+  function guess() {
+    var value = parseFloat(document.getElementById("L").value);
+    if (value == window.current_state.L) {
+      text += "<p> You guessed correctly!</p>";
+      text += "<p> The initial state was <em>L</em> = " + window.initial_state.L + ", <em>m</em> = " + window.initial_state.m +
+        "; This can be written as the ket " + sateToText(window.initial_state) + ".</p>";
+      document.getElementById("res").innerHTML = text;
+    } else {
+      text += "<p> You guessed incorrectly. </p>";
+      document.getElementById("res").innerHTML = text + buttons;
+    }
+  }
+
+  function storeUserInput() {
+    var L_max = parseFloat(document.getElementById("L_max").value);
+    //alert("L_max is " + L_max);
+
+    // Store the value of L_max in a variable.
+    window.L_max = L_max;
+    if (L_max < 0) {
+      //alert("L_max must be greater than or equal to 0.");
+      text = "Error! <em>L</em><sub>max</sub> must be greater than or equal to 0.";
+      document.getElementById("res").innerHTML = text;
+      return;
+    } else if (isNaN(L_max)) {
+      //alert("L_max must be a number.");
+      text = "Error! <em>L</em><sub>max</sub> must be a number.";
+      document.getElementById("res").innerHTML = text;
+      return;
+    }
+    text = "<em>L</em><sub>max</sub> is " + L_max;
+    //alert("L_max is " + L_max);
+    var L2 = getRandomInt(L_max * 2 + 1.0);
+    var L = L2 / 2;
+    var AM_state = {
+      L: L,
+      m: (getRandomInt(L2 + 1)) - L,
+    };
+    //text += "<p> The initial state is <em>L</em> = " + AM_state.L + ", <em>m</em> = " + AM_state.m + ".</p>"
+    document.getElementById("res").innerHTML = text + buttons;
+    window.initial_state = AM_state;
+    window.current_state = {L: AM_state.L, m: AM_state.m};
+  }
+</script>
+</body>
+</html>
